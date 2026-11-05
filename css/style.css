@@ -1,0 +1,317 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  user-select: none;
+}
+
+img {
+  user-select: none;
+}
+
+ul,
+li {
+  list-style: none;
+}
+
+body {
+  font-family: "Pretendard", Arial, sans-serif;
+  color: #333;
+  line-height: 1.3;
+}
+
+.container {
+  width: 1440px;
+  padding: 100px 20px;
+  margin: auto;
+}
+
+#modal {
+  display:none;
+  position:fixed;
+  inset:0;
+  padding: 24px;
+  text-align: center;
+  background-color:rgba(0,0,0,0.9);
+  z-index: 999;
+}
+#modal img{
+  max-width:90%;
+  max-height:calc(100vh - 24px);
+}
+
+/*============================================*/
+
+header {
+  width: 100%;
+  min-width: 1440px;
+  padding: 0 20px;
+  margin: auto;
+  height: 680px;
+  background: url(../images/bg.png) center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+header>.title {
+  text-align: center;
+  color: #f1f1f1;
+}
+
+header h1 {
+  font-size: 80px;
+  margin-bottom: 160px;
+}
+
+header p {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+/*skills*/
+#skills {
+  background-color: #f8c558;
+  min-width: 1440px;
+}
+
+#skills .container {
+  padding: 60px 20px;
+}
+
+#skills h1 {
+  font-size: 30px;
+  text-indent: 30px;
+}
+
+#skills .box-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#skills .box-group .box {
+  width: 50%;
+
+}
+
+#skills .box-group .box>a {
+  display: block;
+  display: flex;
+  padding: 60px 30px;
+  gap: 15px;
+}
+
+#skills .pic img {
+  display: block;
+}
+
+#skills .txt .btn {
+  font-size: 20px;
+  font-weight: bold;
+  color: #4787E6;
+}
+
+#skills .txt p {
+  margin-top: 10px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #333;
+}
+
+#skills .box:hover img {
+  filter: brightness(1.5);
+}
+
+#skills .box:hover .txt .btn {
+  color: rgb(97, 151, 233);
+}
+
+/*works*/
+#works {
+  background-color: #f8e083;
+  min-width: 1440px;
+}
+
+#works .container {
+  padding: 60px 20px;
+}
+
+#works h1 {
+  font-size: 30px;
+  text-indent: 30px;
+  margin-bottom: 100px;
+}
+
+#works .box-group {
+  display: flex;
+  padding: 0 30px;
+  justify-content: space-between;
+}
+
+#works .box-group .box {
+  width: 236px;
+  text-align: center;
+}
+
+#works .box h2 {
+  font-size: 25px;
+}
+
+#works .box .pic {
+  margin: 10px 0 20px;
+}
+
+#works .box p {
+  font-size: 20px;
+  font-weight: bold;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/*=====================================================*/
+
+.re-btn{
+  position:fixed;
+  top:20px;
+  left:20px;
+  padding:10px 20px;
+  background-color:#f8c558;
+  border-radius: 20px;
+  color:#333;
+  font-weight: bold;
+  font-size:16px;
+  z-index: 10;
+}
+
+main {
+  background-color: #f9efcd;
+  width: 100%;
+  min-width: 1440px;
+}
+
+main h1 {
+  font-size: 72px;
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+main .box-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+main .box h2 {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+main .box img:hover {
+  filter: opacity(0.9);
+  cursor: pointer;
+}
+main .box p {
+  font-size: 18px;
+  font-weight: bold;
+  color: #666;
+  text-align: center;
+}
+
+/*photoshop*/
+#photoshop .box-group .box {
+  width: 33.3333%;
+  padding: 10px 20px;
+}
+
+#photoshop .box img {
+  width: 100%;
+  height: auto;
+}
+
+
+#photoshop .comp .box-group {
+  flex-wrap: nowrap;
+}
+
+#photoshop .comp .box {
+  width: auto;
+  padding: 10px;
+  flex: 1;
+}
+
+#photoshop .comp .box:nth-child(2) {
+  flex: 2;
+}
+
+#photoshop .comp .box img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+}
+
+/*illustrator*/
+#illustrator .box:first-child{
+  width:100%;
+}
+#illustrator .box{
+  text-align: center;
+  padding:20px;
+}
+#illustrator .character .box-group{
+  justify-content: center;
+}
+#illustrator .character .box{
+  width:auto;
+  padding:20px 10px;
+}
+
+/*after*/
+#modal > .container{
+  width:80%;
+  max-width:1440px;
+  margin:auto;
+  padding:20px;
+}
+#modal .box{
+  position:relative;
+  width:100%;
+  padding-top:56.25%;
+}
+iframe{
+  position:absolute;
+  left:0; top:0;
+  width:100%;
+  height:100%;
+}
+
+#after, #premiere{
+  height:100vh;
+}
+#after .box-group,
+#premiere .box-group{
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap:20px;
+}
+
+/*figma*/
+#fig {
+  height:100vh;
+}
+#fig .box-group{
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap:20px;
+}
+#fig .box p{
+  margin-top:10px;
+}
+#fig .box p a{
+  color:#4787E6;
+}
