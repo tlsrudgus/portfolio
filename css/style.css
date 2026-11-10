@@ -305,12 +305,20 @@ main .box p {
 }
 
 /*after*/
-#modal > .container{
-  width:80%;
-  max-width:1440px;
-  margin:auto;
-  padding:20px;
+
+#modal > .container {
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: min(1100px, 90vw, calc((100vh - 48px) * 16 / 9));
+    max-width: none;
+    margin: 0;
+    padding: 0;
 }
+
 #modal .box{
   position:relative;
   width:100%;
