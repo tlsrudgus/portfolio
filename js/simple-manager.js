@@ -1,57 +1,102 @@
 (() => {
   'use strict';
-  // 이 값은 우연한 관리자 화면 진입을 방지하기 위한 공개 가능한 잠금 비밀번호입니다.
-  const ADMIN_PASSWORD = '1234'; // 원하는 비밀번호로 변경하세요.
+  // 우연한 편집 모드 진입을 막는 편의용 잠금입니다. GitHub 게시 권한을 대체하지 않습니다.
+  const ADMIN_PASSWORD = '1234'; // 여기서 수정
   const $ = id => document.getElementById(id);
-  const gallery = $('premiere-gallery');
-  const gate = $('manager-gate');
-  const editor = $('manager-editor');
-  const status = text => { $('manager-status').textContent=text; };
-  let loggedIn = false;
-  const close = () => { gate.hidden=true;editor.hidden=true; };
+  const gallery=$('premiere-gallery'), gate=$('manager-gate'), editor=$('manager-editor'), position=$('manager-position');
+  if(!gallery)return;
+  const overlays=[gate,editor,position];
+  let loggedIn=false, editingId=null, positioningId=null;
+  const status=t=>{$('manager-status').textContent=t;};
+  const positionStatus=t=>{$('manager-position-status').textContent=t;};
+  const close=()=>{for(const el of overlays)el.hidden=true;};
   const addCard=document.createElement('div');addCard.className='box manager-add-card';addCard.hidden=true;
   const addButton=document.createElement('button');addButton.type='button';addButton.className='manager-add-button';
   const plus=document.createElement('span');plus.className='manager-plus';plus.textContent='+';
-  const label=document.createElement('span');label.textContent='작품 추가';
-  addButton.append(plus,label);addCard.append(addButton);
+  const addLabel=document.createElement('span');addLabel.textContent='작품 추가';addButton.append(plus,addLabel);addCard.append(addButton);
   const exit=document.createElement('button');exit.type='button';exit.className='manager-exit';exit.textContent='관리자 모드 종료';exit.hidden=true;document.body.append(exit);
-  const setMode = active => { loggedIn=active; addCard.hidden=!active;exit.hidden=!active;if(active)gallery.appendChild(addCard);else addCard.remove();close(); };
-  const login=()=>{if(!loggedIn){gate.hidden=false;$('manager-password').focus();}else{openEditor();}};
-  document.addEventListener('keydown',event=>{
-    if(event.ctrlKey&&event.altKey&&event.key.toLowerCase()==='e') {event.preventDefault();login();}
-    if(event.key==='Escape')close();
+  const buttons=new Map();
+  const setMode=active=>{
+    loggedIn=active;addCard.hidden=!active;exit.hidden=!active;
+    if(active)gallery.appendChild(addCard);else addCard.remove();
+    document.body.classList.toggle('portfolio-manager-active',active);
+    window.refreshManagerCards?.();close();
+  };
+  const login=()=>{if(!loggedIn){gate.hidden=false;$('manager-password').focus();}else openEditor();};
+  document.addEventListener('keydown',e=>{
+    if(e.ctrlKey&&e.altKey&&e.key.toLowerCase()==='e'){e.preventDefault();login();}
+    if(e.key==='Escape')close();
   });
   document.querySelectorAll('[data-close-manager]').forEach(button=>button.addEventListener('click',close));
-  [gate,editor].forEach(backdrop=>backdrop.addEventListener('click',event=>{if(event.target===backdrop)close();}));
-  $('manager-login').addEventListener('submit',event=>{
-    event.preventDefault();
+  overlays.forEach(backdrop=>backdrop.addEventListener('click',e=>{if(e.target===backdrop)close();}));
+  $('manager-login').addEventListener('submit',e=>{
+    e.preventDefault();
     if($('manager-password').value===ADMIN_PASSWORD){$('manager-password').value='';$('manager-login-message').textContent='';setMode(true);}
-    else{$('manager-login-message').textContent='비밀번호가 일치하지 않습니다.';}
+    else $('manager-login-message').textContent='비밀번호가 일치하지 않습니다.';
   });
   exit.addEventListener('click',()=>setMode(false));
-  const openEditor=()=>{$('manager-form').reset();$('manager-type').value='youtube';syncType();status('');editor.hidden=false;$('manager-title').focus();};
-  addButton.addEventListener('click',openEditor);
-  const syncType=()=>{const kind=$('manager-type').value,file=['video','image'].includes(kind);
+  function syncType(){
+    const kind=$('manager-type').value, file=['video','image'].includes(kind);
     $('manager-url-row').hidden=file;$('manager-file-row').hidden=!file;
-    $('manager-file').accept=kind==='image'?'image/jpeg,image/png,image/webp':'video/mp4,video/webm,video/ogg';
-  };
-  $('manager-type').addEventListener('change',syncType);syncType();
-  // GitHub Pages 주소에서 저장소 이름을 가능한 경우 자동으로 채웁니다.
-  if(location.hostname.endsWith('.github.io')){
-    const owner=location.hostname.split('.')[0];
-    $('manager-owner').value=owner;
-    $('manager-repo').value=location.pathname.split('/').filter(Boolean)[0]||owner+'.github.io';
+    $('manager-url').required=!file && !editingId;
+    $('manager-file').required=file && !editingId;
+    $('manager-file').accept=kind==='image'?'image/png,image/jpeg,image/webp':'video/mp4,video/webm,video/ogg';
   }
-  const encoder=new TextEncoder();
-  const b64=bytes=>{let out='';for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(out);};
-  const decodeB64=value=>new TextDecoder().decode(Uint8Array.from(atob(value.replace(/\s/g,'')),x=>x.charCodeAt(0)));
-  const auth=()=>{
-    const owner=$('manager-owner').value.trim(),repo=$('manager-repo').value.trim(),branch=$('manager-branch').value.trim()||'main',token=$('manager-token').value.trim();
-    if(!owner||!repo||!token)throw Error('GitHub 게시 연결을 열고 저장소 정보와 토큰을 입력해 주세요.');
+  $('manager-type').addEventListener('change',syncType);
+  function openEditor(id=null){
+    editingId=id;
+    const connection={owner:$('manager-owner').value,repo:$('manager-repo').value,branch:$('manager-branch').value};
+    $('manager-form').reset();
+    $('manager-owner').value=connection.owner;$('manager-repo').value=connection.repo;$('manager-branch').value=connection.branch||'main';
+    $('manager-delete').hidden=!id;
+    $('manager-editor-heading').textContent=id?'작품 수정하기':'새 작품 추가';
+    $('manager-publish').textContent=id?'수정 내용 저장하기':'작품 등록하기';
+    $('manager-thumbnail').required=!id;
+    if(id){
+      const item=window.getPremiereItems?.().find(it=>it.id===id);
+      if(!item)return;
+      $('manager-title').value=item.title;
+      const kind=item.kind==='file'?'video':item.kind==='link'?'youtube':item.kind;
+      $('manager-type').value=kind;
+      if(['youtube','external'].includes(kind))$('manager-url').value=item.url.startsWith('http')?item.url:'';
+    } else {$('manager-type').value='youtube';}
+    syncType();status('');close();editor.hidden=false;$('manager-title').focus();
+  }
+  addButton.addEventListener('click',()=>openEditor());
+  window.refreshManagerCards=()=>{
+    gallery.querySelectorAll('.box[data-portfolio-id]').forEach(card=>{
+      const id=card.dataset.portfolioId;
+      let bar=card.querySelector('.portfolio-manager-actions');
+      if(!bar){
+        bar=document.createElement('div');bar.className='portfolio-manager-actions';
+        const positionButton=document.createElement('button');positionButton.type='button';positionButton.textContent='위치 조절';
+        positionButton.addEventListener('click',()=>openPosition(id));bar.append(positionButton);
+        if(!id.startsWith('legacy-')){
+          const edit=document.createElement('button');edit.type='button';edit.textContent='수정';edit.addEventListener('click',()=>openEditor(id));bar.append(edit);
+          const del=document.createElement('button');del.type='button';del.className='portfolio-delete-button';del.textContent='삭제';del.addEventListener('click',()=>deleteItem(id));bar.append(del);
+        }
+        card.append(bar);
+      }
+    });
+  };
+  const readConnection=prefix=>{
+    const owner=$(prefix+'-owner').value.trim(),repo=$(prefix+'-repo').value.trim(),branch=$(prefix+'-branch').value.trim()||'main',token=$(prefix+'-token').value.trim();
+    if(!owner||!repo||!token)throw Error('GitHub 게시 설정을 열고 소유자, 저장소, 토큰을 입력해 주세요.');
     if(!/^[\w.-]+$/.test(owner)||!/^[\w.-]+$/.test(repo))throw Error('저장소 이름을 확인해 주세요.');
     return {owner,repo,branch,token};
   };
-  const github=async(config,path,method='GET',body)=>{
+  function fillRepository(prefix){
+    if(location.hostname.endsWith('.github.io')){
+      const owner=location.hostname.split('.')[0];
+      $(prefix+'-owner').value=owner;
+      $(prefix+'-repo').value=location.pathname.split('/').filter(Boolean)[0]||owner+'.github.io';
+    }
+  }
+  fillRepository('manager');fillRepository('position');
+  const encoder=new TextEncoder();
+  const b64=bytes=>{let out='';for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(out);};
+  const decodeB64=value=>new TextDecoder().decode(Uint8Array.from(atob(value.replace(/\s/g,'')),c=>c.charCodeAt(0)));
+  async function github(config,path,method='GET',body){
     const uri=path.split('/').map(encodeURIComponent).join('/');
     const url=`https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${uri}`+(method==='GET'?'?ref='+encodeURIComponent(config.branch):'');
     const response=await fetch(url,{method,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+config.token,'X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
@@ -59,46 +104,124 @@
     if(response.status===404&&method==='GET')return null;
     if(!response.ok)throw Error(`GitHub ${response.status}: ${data.message||'게시 권한 또는 설정을 확인해 주세요.'}`);
     return data;
-  };
-  const upload=async(config,file,type)=>{
+  }
+  async function readData(config,path,fallback){
+    const record=await github(config,path);
+    return {record,data:record?JSON.parse(decodeB64(record.content)):fallback};
+  }
+  const putData=(config,path,record,data,message)=>github(config,path,'PUT',{message,content:b64(encoder.encode(JSON.stringify(data,null,2)+'\n')),branch:config.branch,...(record?{sha:record.sha}:{})});
+  async function upload(config,file,type){
     const ext=file.name.split('.').pop().toLowerCase();
     const path=`media/${type}-${Date.now()}-${Math.random().toString(36).slice(2,9)}.${ext}`;
-    await github(config,path,'PUT',{message:'Add portfolio '+type,content:b64(new Uint8Array(await file.arrayBuffer())),branch:config.branch});
+    await github(config,path,'PUT',{message:'Upload portfolio '+type,content:b64(new Uint8Array(await file.arrayBuffer())),branch:config.branch});
     return path;
-  };
-  const validFile=(file,types,limit,description)=>{
-    if(!file)throw Error(description+'을(를) 선택해 주세요.');
-    if(!types.includes(file.type))throw Error(description+': 지원하지 않는 파일 형식입니다.');
-    if(file.size>limit)throw Error(description+': 파일이 너무 큽니다.');
+  }
+  const types={thumbnail:['image/jpeg','image/png','image/webp'],image:['image/jpeg','image/png','image/webp'],video:['video/mp4','video/webm','video/ogg']};
+  function validate(file,type,limit,label){
+    if(!file)throw Error(label+'을(를) 선택해 주세요.');
+    if(!types[type].includes(file.type))throw Error(label+': 지원하지 않는 형식입니다.');
+    if(file.size>limit)throw Error(label+': 파일이 너무 큽니다.');
     return file;
-  };
-  $('manager-form').addEventListener('submit',async event=>{
-    event.preventDefault();
+  }
+  $('manager-form').addEventListener('submit',async e=>{
+    e.preventDefault();
     const submit=$('manager-publish');submit.disabled=true;
     try{
       const title=$('manager-title').value.trim(),kind=$('manager-type').value;
       if(!title)throw Error('제목을 입력해 주세요.');
-      const thumb=validFile($('manager-thumbnail').files[0],['image/jpeg','image/png','image/webp'],5*1024*1024,'썸네일');
+      const thumb=$('manager-thumbnail').files[0];
+      if(thumb)validate(thumb,'thumbnail',5*1024*1024,'썸네일');
+      if(!thumb&&!editingId)throw Error('썸네일을 등록해 주세요.');
+      const old=editingId?window.getPremiereItems?.().find(it=>it.id===editingId):null;
       const fileKind=['video','image'].includes(kind);
-      const asset=fileKind?validFile($('manager-file').files[0],kind==='image'?['image/jpeg','image/png','image/webp']:['video/mp4','video/webm','video/ogg'],kind==='image'?8*1024*1024:15*1024*1024,'작품 파일'):null;
-      let url='';
-      if(!fileKind){url=$('manager-url').value.trim();const parsed=new URL(url);if(!['http:','https:'].includes(parsed.protocol))throw Error('https://로 시작하는 링크만 사용할 수 있어요.');url=parsed.href;}
-      const config=auth();
-      status('현재 작품 목록을 확인하는 중...');
-      const record=await github(config,'data/premiere-extra.json');
-      const items=record?JSON.parse(decodeB64(record.content)):[];
-      if(!Array.isArray(items))throw Error('기존 작품 목록 형식이 올바르지 않습니다.');
-      status('썸네일 업로드 중...');
-      const thumbPath=await upload(config,thumb,'thumbnail');
+      const asset=$('manager-file').files[0];
+      if(asset)validate(asset,kind==='image'?'image':'video',kind==='image'?8*1024*1024:15*1024*1024,'작품 파일');
+      const urlInput=$('manager-url').value.trim();
+      if(!fileKind&&urlInput){const parsed=new URL(urlInput);if(!['http:','https:'].includes(parsed.protocol))throw Error('http(s) 주소만 등록할 수 있습니다.');}
+      if(!fileKind&&!urlInput&&!old)throw Error('작품 링크를 입력해 주세요.');
+      if(fileKind&&!asset&&(!old||!['file','image','video'].includes(old.kind)))throw Error('작품 파일을 선택해 주세요.');
+      const config=readConnection('manager');
+      status('작품 목록을 확인하는 중...');
+      const {record,data:items}=await readData(config,'data/premiere-extra.json',[]);
+      if(!Array.isArray(items))throw Error('작품 목록 형식이 올바르지 않습니다.');
+      const idx=editingId?items.findIndex(a=>a.id===editingId):-1;
+      if(editingId&&idx<0)throw Error('수정하려는 작품을 찾을 수 없습니다.');
+      const previous=idx>=0?items[idx]:null;
+      if(thumb)status('썸네일 업로드 중...');
+      const thumbPath=thumb?await upload(config,thumb,'thumbnail'):previous?.thumb;
+      let url=fileKind?null:(urlInput || previous?.url || '');
       if(asset){status('작품 파일 업로드 중...');url=await upload(config,asset,kind);}
-      items.push({id:'p-'+Date.now(),title,kind:kind==='video'?'file':kind==='youtube'?'link':kind,thumb:thumbPath,url});
-      status('작품 목록 게시 중...');
-      const newBody={message:'Add Premiere portfolio: '+title,content:b64(encoder.encode(JSON.stringify(items,null,2)+'\n')),branch:config.branch,...(record?{sha:record.sha}:{})};
-      await github(config,'data/premiere-extra.json','PUT',newBody);
-      status('등록 완료! GitHub Pages 배포가 끝나면 새 작품이 나타납니다.');
-      $('manager-form').reset();syncType();
-      window.reloadPremiereExtras?.().catch(()=>{});
-    }catch(error){status(error.message||'등록에 실패했습니다.');$('manager-github').open=true;}
+      else if(fileKind){url=previous?.url;}
+      if(!url)throw Error('등록할 작품 파일 또는 링크가 없습니다.');
+      const entry={id:previous?.id||'p-'+Date.now(),title,kind:kind==='video'?'file':kind==='youtube'?'link':kind,thumb:thumbPath,url,...(previous?.position?{position:previous.position}:{})};
+      if(idx>=0)items[idx]=entry;else items.push(entry);
+      status('GitHub에 저장 중...');
+      await putData(config,'data/premiere-extra.json',record,items,`${idx>=0?'Update':'Add'} portfolio: ${title}`);
+      window.renderPremiereExtras?.(items);
+      status('저장 완료! GitHub Pages 배포 후 일반 방문자에게도 반영됩니다.');
+      editingId=null; $('manager-thumbnail').required=true; $('manager-form').reset();syncType();
+    }catch(error){status(error.message||'저장에 실패했습니다.');$('manager-form .manager-github').open=true;}
     finally{submit.disabled=false;}
   });
+  async function deleteItem(id){
+    const item=window.getPremiereItems?.().find(it=>it.id===id);
+    if(!item||!confirm(`「${item.title}」 작품을 삭제할까요?\n기존 4개 작품은 삭제되지 않습니다.`))return;
+    openEditor(id);
+    status('이 작품을 삭제하려면 GitHub 게시 설정을 입력하고 아래 삭제 버튼을 눌러 주세요.');
+  }
+  $('manager-delete').addEventListener('click',async()=>{
+    const id=editingId;
+    if(!id||!confirm('작품을 목록에서 삭제할까요?'))return;
+    const button=$('manager-delete');button.disabled=true;
+    try{
+      const config=readConnection('manager');
+      status('작품 목록을 불러오는 중...');
+      const {record,data}=await readData(config,'data/premiere-extra.json',[]);
+      const filtered=data.filter(item=>item.id!==id);
+      if(filtered.length===data.length)throw Error('작품을 찾을 수 없습니다.');
+      await putData(config,'data/premiere-extra.json',record,filtered,'Remove portfolio item');
+      window.renderPremiereExtras?.(filtered);close();
+    }catch(error){status(error.message);$('manager-form .manager-github').open=true;}
+    finally{button.disabled=false;}
+  });
+  function getPositionValues(){return {x:Number($('manager-x').value),y:Number($('manager-y').value),size:Number($('manager-size').value)};}
+  const drawPreview=()=>{
+    const p=getPositionValues();
+    $('manager-x-label').textContent=p.x+'%';$('manager-y-label').textContent=p.y+'%';$('manager-size-label').textContent=p.size+'%';
+    const sample=$('manager-position-sample');
+    sample.style.left=p.x+'%';sample.style.top=p.y+'%';sample.style.width=(p.size*.72)+'%';
+  };
+  function openPosition(id){
+    positioningId=id;
+    const card=window.getPremiereCard?.(id);
+    $('manager-position-title').textContent=card?.querySelector('h2')?.textContent||'작품';
+    const saved=window.getPremiereLayout?.(id)||{x:50,y:50,size:70};
+    $('manager-x').value=saved.x;$('manager-y').value=saved.y;$('manager-size').value=saved.size;
+    positionStatus('');drawPreview();close();position.hidden=false;
+  }
+  ['manager-x','manager-y','manager-size'].forEach(id=>$(id).addEventListener('input',drawPreview));
+  $('manager-position-reset').addEventListener('click',()=>{$('manager-x').value=50;$('manager-y').value=50;$('manager-size').value=70;drawPreview();});
+  $('manager-position-form').addEventListener('submit',async e=>{
+    e.preventDefault();const button=$('manager-position-save');button.disabled=true;
+    try{
+      const config=readConnection('position'),id=positioningId,value=getPositionValues();
+      if(!id)throw Error('선택된 작품이 없습니다.');
+      if(id.startsWith('legacy-')){
+        const {record,data}=await readData(config,'data/premiere-layout.json',{});
+        data[id]=value;
+        await putData(config,'data/premiere-layout.json',record,data,'Update original portfolio popup position');
+        window.setPremiereLayouts?.(data);
+      }else{
+        const {record,data}=await readData(config,'data/premiere-extra.json',[]);
+        const item=data.find(a=>a.id===id);
+        if(!item)throw Error('작품을 찾을 수 없습니다.');
+        item.position=value;
+        await putData(config,'data/premiere-extra.json',record,data,'Update portfolio popup position');
+        window.renderPremiereExtras?.(data);
+      }
+      positionStatus('저장 완료! 해당 작품에만 적용됩니다. GitHub Pages 배포 후 공개 사이트에 반영돼요.');
+    }catch(error){positionStatus(error.message||'저장에 실패했습니다.');$('manager-position-form .manager-github').open=true;}
+    finally{button.disabled=false;}
+  });
+  window.refreshManagerCards();
 })();

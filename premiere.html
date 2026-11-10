@@ -61,9 +61,9 @@
   <div id="manager-editor" class="manager-overlay" hidden>
     <form id="manager-form" class="manager-panel manager-editor-panel">
       <button type="button" class="manager-close" data-close-manager aria-label="닫기">×</button>
-      <h2>새 작품 추가</h2>
+      <h2 id="manager-editor-heading">새 작품 추가</h2>
       <label>작품 제목<input id="manager-title" maxlength="100" placeholder="예: 새로운 영상 작품" required></label>
-      <label>썸네일 이미지<input id="manager-thumbnail" type="file" accept="image/png,image/jpeg,image/webp" required></label>
+      <label>썸네일 이미지 (수정할 때는 생략 가능)<input id="manager-thumbnail" type="file" accept="image/png,image/jpeg,image/webp" required></label>
       <label>작품 유형<select id="manager-type"><option value="youtube">유튜브 / 영상 링크</option><option value="video">동영상 파일</option><option value="image">이미지 파일</option><option value="external">다른 사이트 링크</option></select></label>
       <label id="manager-url-row">작품 링크<input id="manager-url" type="url" placeholder="https://youtu.be/..."></label>
       <label id="manager-file-row" hidden>작품 파일<input id="manager-file" type="file" accept="video/mp4,video/webm,video/ogg,image/png,image/jpeg,image/webp"></label>
@@ -75,7 +75,32 @@
         <label>GitHub Fine-grained 토큰<input id="manager-token" type="password" autocomplete="off" placeholder="Contents: Read and write 권한"></label>
       </details>
       <button class="manager-primary" type="submit" id="manager-publish">작품 등록하기</button>
+      <button type="button" id="manager-delete" class="manager-danger" hidden>이 작품 삭제하기</button>
       <p id="manager-status" class="manager-message" role="status"></p>
+    </form>
+  </div>
+
+  <!-- 작품마다 팝업 표시 위치/크기를 따로 조절하는 관리자 창 -->
+  <div id="manager-position" class="manager-overlay" hidden>
+    <form id="manager-position-form" class="manager-panel manager-editor-panel">
+      <button type="button" class="manager-close" data-close-manager aria-label="닫기">×</button>
+      <h2>표시 위치 조절</h2>
+      <p id="manager-position-title"></p>
+      <div id="manager-position-preview" aria-label="위치 미리보기">
+        <div id="manager-position-sample"><span>영상 / 이미지</span></div>
+      </div>
+      <label>가로 위치 <output id="manager-x-label">50%</output><input id="manager-x" type="range" min="10" max="90" value="50"></label>
+      <label>세로 위치 <output id="manager-y-label">50%</output><input id="manager-y" type="range" min="10" max="90" value="50"></label>
+      <label>크기 <output id="manager-size-label">70%</output><input id="manager-size" type="range" min="30" max="95" value="70"></label>
+      <button type="button" id="manager-position-reset" class="manager-secondary">기본값으로 복원</button>
+      <details class="manager-github"><summary>GitHub 게시 설정 (저장할 때 입력)</summary>
+        <label>저장소 소유자<input id="position-owner" placeholder="GitHub 계정"></label>
+        <label>저장소 이름<input id="position-repo" placeholder="저장소 이름"></label>
+        <label>브랜치<input id="position-branch" value="main"></label>
+        <label>GitHub 토큰<input id="position-token" type="password" autocomplete="off"></label>
+      </details>
+      <button class="manager-primary" type="submit" id="manager-position-save">위치 저장하기</button>
+      <p class="manager-message" id="manager-position-status" role="status"></p>
     </form>
   </div>
 </body>
