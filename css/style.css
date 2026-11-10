@@ -46,6 +46,39 @@ body {
   max-height:calc(100vh - 24px);
 }
 
+/* 스킬 카드 전체 영역 */
+#skills .box-group .box > a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 24px 30px;
+    isolation: isolate;
+}
+
+/* 둥근 사각형 배경 */
+#skills .box-group .box > a::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    height: 124px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    left: 90px;
+    right: 0;
+
+    background-color: #fff7e5;
+    border-radius: 18px;
+}
+
+
+/* 마우스를 올렸을 때 */
+#skills .box-group .box > a:hover::before {
+    background-color: #ffffff;
+}
+
 /*============================================*/
 
 header {
