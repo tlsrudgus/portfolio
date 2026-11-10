@@ -1,0 +1,65 @@
+/* 애프터 이펙트 작품의 기존 4열 구성 유지, 새 작품은 다음 줄로 정렬 */
+#after {height:auto; min-height:100vh;}
+#after #aftereffect-gallery {flex-wrap:wrap;justify-content:center;gap:20px;}
+#after #aftereffect-gallery > .box {width:calc((100% - 60px) / 4);min-width:0;}
+#after #aftereffect-gallery .box > img {width:100%;aspect-ratio:1/1;object-fit:cover;display:block;cursor:pointer;}
+#after #aftereffect-gallery .box h2 {overflow-wrap:anywhere;}
+#modal .portfolio-file-video {position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;}
+#modal .portfolio-external-link {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;}
+@media(max-width:800px){
+ #after,#after .container {min-width:0;width:100%;}
+ #after #aftereffect-gallery > .box {width:calc((100% - 20px) / 2);}
+}
+
+/* 편집 모드에만 표시되는 새 작품 등록 카드 */
+#after #aftereffect-gallery .manager-add-card {display:flex;align-items:stretch;justify-content:end;min-height:270px;}
+#after .manager-add-button{width:100%;min-height:230px;border:3px dashed #c7af65;border-radius:14px;background:#fff7df;color:#5a4a29;cursor:pointer;font:700 22px inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:background .15s;}
+#after .manager-add-button:hover{background:#fff;}
+#after .manager-add-button .manager-plus{font-size:76px;line-height:1;font-weight:300;}
+.manager-exit{position:fixed;top:20px;right:20px;background:#f8c558;color:#29251c;border:0;border-radius:30px;padding:12px 18px;z-index:100;font:700 15px Pretendard,Arial,sans-serif;cursor:pointer;}
+.manager-overlay[hidden]{display:none!important;}
+.manager-overlay{position:fixed;inset:0;background:rgba(0,0,0,.64);z-index:1100;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.manager-panel{position:relative;width:min(470px,100%);max-height:calc(100vh - 36px);overflow-y:auto;background:#fff8e2;border-radius:20px;padding:30px;box-shadow:0 15px 60px rgba(0,0,0,.2);color:#333;display:flex;flex-direction:column;gap:12px;font-family:Pretendard,Arial,sans-serif;}
+.manager-editor-panel{width:min(540px,100%);}
+.manager-panel h2{font-size:28px;margin-bottom:2px;}.manager-panel p{font-size:14px;line-height:1.5;}
+.manager-panel label{font-size:15px;font-weight:700;display:flex;flex-direction:column;gap:6px;}
+.manager-panel input,.manager-panel select{width:100%;border:1px solid #d3c393;background:white;border-radius:9px;padding:12px;font:inherit;font-size:14px;}
+.manager-panel [hidden]{display:none!important;}
+.manager-close{position:absolute;top:14px;right:18px;border:0;background:none;font-size:30px;cursor:pointer;}
+.manager-primary{background:#f6bb39;color:#29251c;border:0;border-radius:10px;padding:14px;font:700 16px Pretendard,Arial,sans-serif;cursor:pointer;}
+.manager-github{border:1px solid #e0ca8d;border-radius:10px;padding:12px;}
+.manager-github summary{cursor:pointer;font-weight:bold;}.manager-github[open]{display:flex;flex-direction:column;gap:12px;}
+.manager-message{min-height:18px;color:#8b392b;white-space:pre-wrap;}
+#modal .portfolio-image-viewer{max-width:90vw;max-height:88vh;object-fit:contain;}
+#modal .portfolio-file-video{object-fit:contain;}
+#aftereffect-gallery .box img{cursor:pointer;}
+@media(max-width:800px){.manager-panel{padding:22px;}.manager-exit{top:12px;right:12px;}}
+
+/* 애프터 이펙트 포트폴리오: 작품별로 따로 저장하는 큰 화면 위치 */
+body:has(#aftereffect-gallery) #modal.portfolio-popup-open { padding:0; }
+body:has(#aftereffect-gallery) #modal.portfolio-popup-open > .container {
+  position:absolute;
+  top:var(--portfolio-popup-y,50%);
+  left:var(--portfolio-popup-x,50%);
+  transform:translate(-50%,-50%);
+  width:min(var(--portfolio-popup-size,70vw),calc(100vw - 32px),calc((100vh - 32px) * 16 / 9));
+  max-width:none;
+  margin:0;
+  padding:0;
+}
+body:has(#aftereffect-gallery) #modal.portfolio-popup-open .box {width:100%;padding-top:56.25%;}
+body:has(#aftereffect-gallery) #modal.portfolio-popup-open .portfolio-image-viewer {
+  position:absolute;inset:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;
+}
+/* 관리자 화면에서만 보이는 편집 버튼 */
+#aftereffect-gallery .portfolio-manager-actions {display:none;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:8px;}
+body.portfolio-manager-active #aftereffect-gallery .portfolio-manager-actions {display:flex;}
+#aftereffect-gallery .portfolio-manager-actions button {border:0;background:#f6c65a;color:#272727;border-radius:8px;padding:8px 9px;font-size:13px;font-weight:700;cursor:pointer;}
+#aftereffect-gallery .portfolio-manager-actions button:hover {background:#fff;}
+#aftereffect-gallery .portfolio-manager-actions .portfolio-delete-button {background:#f4c8bd;}
+.manager-panel .manager-danger {border:0;border-radius:10px;padding:12px;background:#ad3226;color:white;font-weight:700;cursor:pointer;}
+.manager-panel .manager-secondary {border:1px solid #c7ad64;border-radius:10px;padding:12px;background:#f6edcf;color:#29251c;font-weight:700;cursor:pointer;}
+#manager-position-preview {height:180px;position:relative;background:#242424;border-radius:12px;overflow:hidden;background-image:linear-gradient(90deg,transparent calc(50% - .5px),#646464 calc(50% - .5px),#646464 calc(50% + .5px),transparent calc(50% + .5px)),linear-gradient(0deg,transparent calc(50% - .5px),#646464 calc(50% - .5px),#646464 calc(50% + .5px),transparent calc(50% + .5px));}
+#manager-position-sample {position:absolute;transform:translate(-50%,-50%);aspect-ratio:16/9;background:#a7cbea;border:2px solid white;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#233745;font-size:12px;font-weight:700;box-shadow:0 5px 12px #0007;}
+#manager-position-form label output {float:right;color:#846319;}
+#manager-position-form input[type=range] {width:100%;accent-color:#edb52d;}
