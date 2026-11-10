@@ -451,3 +451,12 @@ body.portfolio-manager-active #premiere-gallery .portfolio-manager-actions {disp
 #manager-position-sample {position:absolute;transform:translate(-50%,-50%);aspect-ratio:16/9;background:#a7cbea;border:2px solid white;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#233745;font-size:12px;font-weight:700;box-shadow:0 5px 12px #0007;}
 #manager-position-form label output {float:right;color:#846319;}
 #manager-position-form input[type=range] {width:100%;accent-color:#edb52d;}
+
+
+/* 포트폴리오 썸네일 그림자: 기존 카드/레이아웃/팝업 제외 */
+#premiere #premiere-gallery .box > img,
+#after #aftereffect-gallery .box > img,
+#illustrator .box-group .box > img,
+#fig .box-group .box img {
+  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.27);
+}
