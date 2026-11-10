@@ -7,6 +7,8 @@
   <link href="images/favicon.ico" rel="icon">
   <link href="css/style.css" rel="stylesheet">
   <script defer src="js/script.js"></script>
+  <script defer src="js/premiere-extra.js"></script>
+  <script defer src="js/simple-manager.js"></script>
 </head>
 <body>
   <main id="premiere">
@@ -14,7 +16,7 @@
     <section class="movie">
       <div class="container">
         <h1>영상</h1>
-        <div class="box-group">
+        <div class="box-group" id="premiere-gallery">
           <div class="box">
             <h2>인스타&middot;브이로그</h2>
             <img data-src="https://www.youtube.com/embed/qGBYtUxmruY?si=f5SrG3LnTbGSQq1-" src="images/pre1.png"
@@ -44,6 +46,37 @@
           referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
     </div>
+  </div>
+  <!-- Ctrl + Alt + E: 관리자 잠금 해제. 방문자에게 + 카드는 표시되지 않습니다. -->
+  <div id="manager-gate" class="manager-overlay" hidden>
+    <form id="manager-login" class="manager-panel">
+      <button type="button" class="manager-close" data-close-manager aria-label="닫기">×</button>
+      <h2>관리자 모드</h2>
+      <p>관리자 비밀번호를 입력해 주세요.</p>
+      <input id="manager-password" type="password" autocomplete="off" placeholder="비밀번호" required>
+      <button type="submit" class="manager-primary">열기</button>
+      <p id="manager-login-message" class="manager-message" role="status"></p>
+    </form>
+  </div>
+  <div id="manager-editor" class="manager-overlay" hidden>
+    <form id="manager-form" class="manager-panel manager-editor-panel">
+      <button type="button" class="manager-close" data-close-manager aria-label="닫기">×</button>
+      <h2>새 작품 추가</h2>
+      <label>작품 제목<input id="manager-title" maxlength="100" placeholder="예: 새로운 영상 작품" required></label>
+      <label>썸네일 이미지<input id="manager-thumbnail" type="file" accept="image/png,image/jpeg,image/webp" required></label>
+      <label>작품 유형<select id="manager-type"><option value="youtube">유튜브 / 영상 링크</option><option value="video">동영상 파일</option><option value="image">이미지 파일</option><option value="external">다른 사이트 링크</option></select></label>
+      <label id="manager-url-row">작품 링크<input id="manager-url" type="url" placeholder="https://youtu.be/..."></label>
+      <label id="manager-file-row" hidden>작품 파일<input id="manager-file" type="file" accept="video/mp4,video/webm,video/ogg,image/png,image/jpeg,image/webp"></label>
+      <details class="manager-github"><summary>GitHub 게시 연결 (처음 게시할 때 필요)</summary>
+        <p>정적 사이트에서는 게시할 때 GitHub 저장소에 쓸 권한이 필요해요. 토큰은 브라우저에 저장하지 않습니다.</p>
+        <label>저장소 소유자<input id="manager-owner" placeholder="GitHub 계정명"></label>
+        <label>저장소 이름<input id="manager-repo" placeholder="저장소 이름"></label>
+        <label>브랜치<input id="manager-branch" value="main"></label>
+        <label>GitHub Fine-grained 토큰<input id="manager-token" type="password" autocomplete="off" placeholder="Contents: Read and write 권한"></label>
+      </details>
+      <button class="manager-primary" type="submit" id="manager-publish">작품 등록하기</button>
+      <p id="manager-status" class="manager-message" role="status"></p>
+    </form>
   </div>
 </body>
 </html>

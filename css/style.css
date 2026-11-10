@@ -165,83 +165,46 @@ header p {
   color: rgb(97, 151, 233);
 }
 
-/* =========================
-  works 섹션
-========================= */
+/*works*/
 #works {
-  background-color: #e8d98d; /* 연한 베이지 톤 */
+  background-color: #f8e083;
   min-width: 1440px;
 }
 
 #works .container {
-  padding: 60px 40px 90px;
+  padding: 60px 20px;
 }
 
 #works h1 {
-  font-size: 34px;
-  font-weight: 800;
-  margin-bottom: 55px;
-  color: #111;
+  font-size: 30px;
+  text-indent: 30px;
+  margin-bottom: 100px;
 }
 
-/* 카드 전체 정렬 */
 #works .box-group {
   display: flex;
-  justify-content: center;
-  gap: 28px;
-  flex-wrap: nowrap;
+  padding: 0 30px;
+  justify-content: space-between;
 }
 
-/* 카드 하나 */
-#works .box {
-  width: 260px;
-  background-color: #f5f0df;
-  border-radius: 18px;
-  padding: 18px 18px 20px;
+#works .box-group .box {
+  width: 236px;
   text-align: center;
-  box-sizing: border-box;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* 카드 호버 효과 */
-#works .box:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
-
-/* 카드 제목 */
 #works .box h2 {
-  font-size: 18px;
-  font-weight: 800;
-  margin-bottom: 14px;
-  color: #111;
-  min-height: 26px;
+  font-size: 25px;
 }
 
-/* 이미지 영역 */
 #works .box .pic {
-  width: 100%;
-  margin-bottom: 16px;
+  margin: 10px 0 20px;
 }
 
-/* 카드 이미지 */
-#works .box .pic img {
-  display: block;
-  width: 100%;
-  height: 190px;
-  object-fit: cover;
-  border-radius: 14px;
-}
-
-/* 설명 글 */
 #works .box p {
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.45;
-  color: #111;
+  font-size: 20px;
+  font-weight: bold;
   word-break: keep-all;
   overflow-wrap: break-word;
-  margin: 0;
 }
 
 /*=====================================================*/
@@ -385,3 +348,41 @@ iframe{
 #fig .box p a{
   color:#4787E6;
 }
+
+/* 추가된 프리미어 작품: 기존 작품과 같은 4열 정렬 */
+#premiere {height:auto; min-height:100vh;}
+#premiere #premiere-gallery { flex-wrap:wrap; justify-content:center; gap:20px; }
+#premiere #premiere-gallery .box { width: calc((100% - 60px) / 4); min-width:0; }
+#premiere #premiere-gallery .box img { width:100%; aspect-ratio:1/1; object-fit:cover; display:block; }
+#premiere #premiere-gallery .box h2 { overflow-wrap:anywhere; }
+#modal .portfolio-file-video {position:absolute;inset:0;width:100%;height:100%;background:#000;}
+#modal .portfolio-external-link {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;}
+@media(max-width:800px){
+  #premiere,#premiere .container {min-width:0;width:100%;}
+  #premiere #premiere-gallery .box {width:calc((100% - 20px) / 2);}
+  #premiere main h1{font-size:44px;}
+}
+
+/* 편집 모드에만 표시되는 새 작품 등록 카드 */
+#premiere #premiere-gallery .manager-add-card {display:flex;align-items:stretch;justify-content:end;min-height:270px;}
+#premiere .manager-add-button{width:100%;min-height:230px;border:3px dashed #c7af65;border-radius:14px;background:#fff7df;color:#5a4a29;cursor:pointer;font:700 22px inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:background .15s;}
+#premiere .manager-add-button:hover{background:#fff;}
+#premiere .manager-add-button .manager-plus{font-size:76px;line-height:1;font-weight:300;}
+.manager-exit{position:fixed;top:20px;right:20px;background:#f8c558;color:#29251c;border:0;border-radius:30px;padding:12px 18px;z-index:100;font:700 15px Pretendard,Arial,sans-serif;cursor:pointer;}
+.manager-overlay[hidden]{display:none!important;}
+.manager-overlay{position:fixed;inset:0;background:rgba(0,0,0,.64);z-index:1100;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.manager-panel{position:relative;width:min(470px,100%);max-height:calc(100vh - 36px);overflow-y:auto;background:#fff8e2;border-radius:20px;padding:30px;box-shadow:0 15px 60px rgba(0,0,0,.2);color:#333;display:flex;flex-direction:column;gap:12px;font-family:Pretendard,Arial,sans-serif;}
+.manager-editor-panel{width:min(540px,100%);}
+.manager-panel h2{font-size:28px;margin-bottom:2px;}.manager-panel p{font-size:14px;line-height:1.5;}
+.manager-panel label{font-size:15px;font-weight:700;display:flex;flex-direction:column;gap:6px;}
+.manager-panel input,.manager-panel select{width:100%;border:1px solid #d3c393;background:white;border-radius:9px;padding:12px;font:inherit;font-size:14px;}
+.manager-panel [hidden]{display:none!important;}
+.manager-close{position:absolute;top:14px;right:18px;border:0;background:none;font-size:30px;cursor:pointer;}
+.manager-primary{background:#f6bb39;color:#29251c;border:0;border-radius:10px;padding:14px;font:700 16px Pretendard,Arial,sans-serif;cursor:pointer;}
+.manager-github{border:1px solid #e0ca8d;border-radius:10px;padding:12px;}
+.manager-github summary{cursor:pointer;font-weight:bold;}.manager-github[open]{display:flex;flex-direction:column;gap:12px;}
+.manager-message{min-height:18px;color:#8b392b;white-space:pre-wrap;}
+#modal .portfolio-image-viewer{max-width:90vw;max-height:88vh;object-fit:contain;}
+#modal .portfolio-file-video{object-fit:contain;}
+#premiere-gallery .box img{cursor:pointer;}
+@media(max-width:800px){.manager-panel{padding:22px;}.manager-exit{top:12px;right:12px;}}
