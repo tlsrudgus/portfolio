@@ -98,11 +98,11 @@
   const decodeB64=value=>new TextDecoder().decode(Uint8Array.from(atob(value.replace(/\s/g,'')),c=>c.charCodeAt(0)));
   async function github(config,path,method='GET',body){
     const uri=path.split('/').map(encodeURIComponent).join('/');
-    const url=`https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${uri}`+(method==='GET'?'?ref='+encodeURIComponent(config.branch):'');
-    const response=await fetch(url,{method,headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+config.token,'X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+    const url=`https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${uri}`+(method==='GET'?'?ref='+encodeURIComponent(config.branch)+'&_='+Date.now()+'-'+Math.random().toString(36).slice(2):'');
+    const response=await fetch(url,{method,cache:'no-store',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+config.token,'X-GitHub-Api-Version':'2022-11-28',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
     const data=await response.json().catch(()=>({}));
     if(response.status===404&&method==='GET')return null;
-    if(!response.ok)throw Error(`GitHub ${response.status}: ${data.message||'게시 권한 또는 설정을 확인해 주세요.'}`);
+    if(!response.ok){const error=Error(`GitHub ${response.status}: ${data.message||'게시 권한 또는 설정을 확인해 주세요.'}`);error.status=response.status;throw error;}
     return data;
   }
   async function readData(config,path,fallback){
@@ -110,6 +110,33 @@
     return {record,data:record?JSON.parse(decodeB64(record.content)):fallback};
   }
   const putData=(config,path,record,data,message)=>github(config,path,'PUT',{message,content:b64(encoder.encode(JSON.stringify(data,null,2)+'\n')),branch:config.branch,...(record?{sha:record.sha}:{})});
+  // 한 번 저장한 직후 다시 등록할 때 GitHub Pages 배포를 기다리지 않도록
+  // 마지막으로 성공한 GitHub 커밋의 SHA와 데이터를 현재 탭에 보관합니다.
+  const confirmedFiles=new Map();
+  const fileKey=(config,path)=>[config.owner,config.repo,config.branch,path].join('/');
+  const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  async function mutateData(config,path,fallback,message,change){
+    const key=fileKey(config,path);
+    for(let attempt=0;attempt<5;attempt++){
+      try{
+       // 같은 탭의 연속 등록은 직전 PUT 응답의 SHA를 사용합니다.
+       // 다른 곳에서 변경된 경우 아래 충돌 처리에서 최신 버전으로 합칩니다.
+       const current=confirmedFiles.get(key)||await readData(config,path,fallback);
+       const data=structuredClone(current.data);
+       change(data);
+       const result=await putData(config,path,current.record,data,message);
+       if(!result.content?.sha)throw Error('GitHub 저장 응답에 최신 SHA가 없습니다. 새로고침 후 확인해 주세요.');
+       confirmedFiles.set(key,{record:{sha:result.content.sha},data});
+       return data;
+      }catch(error){
+       if((error.status!==409&&error.status!==422)||attempt===4)throw error;
+       // 다른 탭이나 요청이 먼저 저장한 경우, 오래된 SHA를 버리고 최신 파일에 다시 반영.
+       confirmedFiles.delete(key);
+       await pause(200*(attempt+1));
+      }
+    }
+  }
+
   async function upload(config,file,type){
     const ext=file.name.split('.').pop().toLowerCase();
     const path=`media/${type}-${Date.now()}-${Math.random().toString(36).slice(2,9)}.${ext}`;
@@ -142,21 +169,24 @@
       if(fileKind&&!asset&&(!old||!['file','image','video'].includes(old.kind)))throw Error('작품 파일을 선택해 주세요.');
       const config=readConnection('manager');
       status('작품 목록을 확인하는 중...');
-      const {record,data:items}=await readData(config,'data/premiere-extra.json',[]);
-      if(!Array.isArray(items))throw Error('작품 목록 형식이 올바르지 않습니다.');
-      const idx=editingId?items.findIndex(a=>a.id===editingId):-1;
-      if(editingId&&idx<0)throw Error('수정하려는 작품을 찾을 수 없습니다.');
-      const previous=idx>=0?items[idx]:null;
+      const savedId=editingId;
+      const oldItem=editingId?window.getPremiereItems?.().find(a=>a.id===editingId):null;
       if(thumb)status('썸네일 업로드 중...');
-      const thumbPath=thumb?await upload(config,thumb,'thumbnail'):previous?.thumb;
-      let url=fileKind?null:(urlInput || previous?.url || '');
+      const thumbPath=thumb?await upload(config,thumb,'thumbnail'):oldItem?.thumb;
+      let url=fileKind?null:(urlInput || oldItem?.url || '');
       if(asset){status('작품 파일 업로드 중...');url=await upload(config,asset,kind);}
-      else if(fileKind){url=previous?.url;}
+      else if(fileKind){url=oldItem?.url;}
       if(!url)throw Error('등록할 작품 파일 또는 링크가 없습니다.');
-      const entry={id:previous?.id||'p-'+Date.now(),title,kind:kind==='video'?'file':kind==='youtube'?'link':kind,thumb:thumbPath,url,...(previous?.position?{position:previous.position}:{})};
-      if(idx>=0)items[idx]=entry;else items.push(entry);
+      const newId='p-'+Date.now()+'-'+Math.random().toString(36).slice(2,7);
       status('GitHub에 저장 중...');
-      await putData(config,'data/premiere-extra.json',record,items,`${idx>=0?'Update':'Add'} portfolio: ${title}`);
+      const items=await mutateData(config,'data/premiere-extra.json',[],`${savedId?'Update':'Add'} portfolio: ${title}`,list=>{
+        if(!Array.isArray(list))throw Error('작품 목록 형식이 올바르지 않습니다.');
+        const idx=savedId?list.findIndex(a=>a.id===savedId):-1;
+        if(savedId&&idx<0)throw Error('수정하려는 작품을 찾을 수 없습니다.');
+        const previous=idx>=0?list[idx]:null;
+        const entry={id:previous?.id||newId,title,kind:kind==='video'?'file':kind==='youtube'?'link':kind,thumb:thumbPath||previous?.thumb,url,...(previous?.position?{position:previous.position}:{})};
+        if(idx>=0)list[idx]=entry;else list.push(entry);
+      });
       window.renderPremiereExtras?.(items);
       status('저장 완료! GitHub Pages 배포 후 일반 방문자에게도 반영됩니다.');
       editingId=null; $('manager-thumbnail').required=true; $('manager-form').reset();syncType();
@@ -176,10 +206,11 @@
     try{
       const config=readConnection('manager');
       status('작품 목록을 불러오는 중...');
-      const {record,data}=await readData(config,'data/premiere-extra.json',[]);
-      const filtered=data.filter(item=>item.id!==id);
-      if(filtered.length===data.length)throw Error('작품을 찾을 수 없습니다.');
-      await putData(config,'data/premiere-extra.json',record,filtered,'Remove portfolio item');
+      const filtered=await mutateData(config,'data/premiere-extra.json',[],'Remove portfolio item',data=>{
+        const idx=data.findIndex(item=>item.id===id);
+        if(idx<0)throw Error('작품을 찾을 수 없습니다.');
+        data.splice(idx,1);
+      });
       window.renderPremiereExtras?.(filtered);close();
     }catch(error){status(error.message);$('manager-form .manager-github').open=true;}
     finally{button.disabled=false;}
@@ -207,16 +238,16 @@
       const config=readConnection('position'),id=positioningId,value=getPositionValues();
       if(!id)throw Error('선택된 작품이 없습니다.');
       if(id.startsWith('legacy-')){
-        const {record,data}=await readData(config,'data/premiere-layout.json',{});
-        data[id]=value;
-        await putData(config,'data/premiere-layout.json',record,data,'Update original portfolio popup position');
+        const data=await mutateData(config,'data/premiere-layout.json',{},'Update original portfolio popup position',layouts=>{
+          layouts[id]=value;
+        });
         window.setPremiereLayouts?.(data);
       }else{
-        const {record,data}=await readData(config,'data/premiere-extra.json',[]);
-        const item=data.find(a=>a.id===id);
-        if(!item)throw Error('작품을 찾을 수 없습니다.');
-        item.position=value;
-        await putData(config,'data/premiere-extra.json',record,data,'Update portfolio popup position');
+        const data=await mutateData(config,'data/premiere-extra.json',[],'Update portfolio popup position',items=>{
+          const item=items.find(a=>a.id===id);
+          if(!item)throw Error('작품을 찾을 수 없습니다.');
+          item.position=value;
+        });
         window.renderPremiereExtras?.(data);
       }
       positionStatus('저장 완료! 해당 작품에만 적용됩니다. GitHub Pages 배포 후 공개 사이트에 반영돼요.');
