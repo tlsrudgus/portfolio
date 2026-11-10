@@ -315,3 +315,35 @@ iframe{
 #fig .box p a{
   color:#4787E6;
 }
+
+/* 스킬 카드 전체 영역 */
+#skills .box-group .box > a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 24px 30px;
+    isolation: isolate;
+}
+
+/* 둥근 사각형 배경 */
+#skills .box-group .box > a::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+
+    top: 22px;
+    bottom: 22px;
+    left: 90px;
+    right: 0;
+
+    background-color: #fff7e5;
+    border-radius: 18px;
+
+    transition: background-color 0.2s ease;
+}
+
+/* 마우스를 올렸을 때 */
+#skills .box-group .box > a:hover::before {
+    background-color: #ffffff;
+}
