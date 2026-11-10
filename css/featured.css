@@ -1,0 +1,35 @@
+/* 메인 대표 작품 / 연락처 전용 스타일 - 기존 페이지 스타일은 변경하지 않습니다. */
+#featured { background: #090909; color: #fff; min-width: 0; }
+#featured .featured-inner { width: min(1370px, calc(100% - 64px)); margin: 0 auto; padding: 48px 0 25px; }
+#featured .featured-header { display:flex; align-items:end; justify-content:space-between; gap: 24px; margin-bottom:26px; }
+#featured .featured-kicker { color:#f5bf4d; font-size:13px; letter-spacing:.14em; font-weight:700; margin-bottom:9px; }
+#featured #featured-heading { font-size:29px; font-weight:800; color:#fff; }
+#featured .featured-hint { color:#b9b9b9; font-size:13px; }
+#featured .featured-grid { display:grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap:19px; }
+#featured .featured-card { font:inherit; color:#fff; display:flex; flex-direction:column; gap:5px; text-align:left; padding:0; margin:0; border:0; background:transparent; cursor:pointer; min-width:0; }
+#featured .featured-image { position:relative; display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:4/5; background:#242424; border:1px solid #383838; overflow:hidden; border-radius:4px; box-shadow:0 5px 16px rgba(0,0,0,.45); }
+#featured .featured-image img { width:100%; height:100%; object-fit:contain; display:block; }
+#featured .featured-image::before { content:""; position:absolute; inset:0; z-index:1; background:rgba(0,0,0,.10); opacity:0; transition:opacity .2s; }
+#featured .featured-symbol { position:absolute; z-index:2; top:50%; left:50%; transform:translate(-50%,-45%); display:grid; place-items:center; width:54px;height:54px; border:1px solid rgba(255,255,255,.55); border-radius:50%; background:rgba(0,0,0,.72); color:#fff; opacity:0; transition: opacity .2s,transform .2s; font-size:25px; }
+#featured .featured-symbol-zoom {font-size:37px;}
+#featured .featured-card:hover .featured-image::before,#featured .featured-card:focus-visible .featured-image::before {opacity:1;}
+#featured .featured-card:hover .featured-symbol,#featured .featured-card:focus-visible .featured-symbol {opacity:1;transform:translate(-50%,-50%);}
+#featured .featured-card:focus-visible {outline:2px solid #f5bf4d;outline-offset:5px;}
+#featured .featured-program {font-size:11px;font-weight:800;letter-spacing:.08em;color:#f5bf4d;margin-top:10px;}
+#featured .featured-name {font-size:15px;font-weight:700;color:#f5f5f5;}
+#featured .featured-footer {margin-top:44px;padding:22px 0 0;border-top:1px solid #363636;display:flex;align-items:center;justify-content:space-between;gap:22px;}
+#featured .featured-contact p {color:#bcbcbc;font-size:11px;letter-spacing:.15em;margin-bottom:5px;}
+#featured #featured-email {color:#fff;font-size:16px;overflow-wrap:anywhere;}
+#featured #featured-email:hover {text-decoration:underline;}
+#featured .featured-youtube {display:flex;align-items:center;gap:9px;color:#fff;font-weight:700;font-size:12px;}
+#featured .featured-youtube svg {width:43px;height:43px;padding:10px;border-radius:50%;background:#f22f34;}
+#featured .featured-youtube:hover svg {background:#c82126;}
+.featured-modal[hidden] {display:none!important;}
+.featured-modal {position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:40px;background:rgba(0,0,0,.90);}
+.featured-modal-content {width:min(1200px,92vw);max-height:calc(100vh - 80px);display:flex;justify-content:center;align-items:center;}
+.featured-modal-content iframe {width:100%;aspect-ratio:16/9;max-height:calc(100vh - 80px);border:0;}
+.featured-modal-content img {display:block;max-width:100%;max-height:calc(100vh - 80px);object-fit:contain;}
+.featured-close {position:absolute;right:22px;top:14px;z-index:1;color:#fff;background:transparent;border:0;font-size:42px;cursor:pointer;line-height:1;}
+@media (max-width: 1050px) { #featured .featured-grid {grid-template-columns:repeat(3,minmax(0,1fr));} }
+@media (max-width: 640px) {#featured .featured-inner {width:calc(100% - 32px);padding-top:32px;} #featured .featured-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;} #featured .featured-header{align-items:start;flex-direction:column;gap:8px;} #featured #featured-heading{font-size:24px;} #featured .featured-footer{align-items:start;} #featured #featured-email{font-size:13px;} #featured .featured-youtube span{display:none;} .featured-modal{padding:12px;} .featured-modal-content{width:100%;}}
+@media (prefers-reduced-motion: reduce) {#featured .featured-image::before,#featured .featured-symbol{transition:none;}}

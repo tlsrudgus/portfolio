@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>자기소개 사이트</title>
+  <title>영상 편집 · 디자인 포트폴리오</title>
   <link href="images/favicon.ico" rel="icon">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/featured.css" rel="stylesheet">
+  <script defer src="js/featured.js"></script>
 </head>
 
 <body>
@@ -99,6 +101,55 @@
       </div>
     </div>
   </section>
+
+  <!-- 대표작은 기존 각 프로그램 페이지에 등록된 작업물 중 하나씩 보여줍니다. -->
+  <section id="featured" aria-labelledby="featured-heading">
+    <div class="featured-inner">
+      <div class="featured-header">
+        <div>
+          <p class="featured-kicker">FEATURED WORKS</p>
+          <h2 id="featured-heading">작업물 미리보기</h2>
+        </div>
+        <p class="featured-hint">클릭하면 영상 재생 · 이미지 확대 · 웹사이트 미리보기가 열립니다.</p>
+      </div>
+      <div class="featured-grid">
+        <button class="featured-card" type="button" data-featured-kind="video" data-featured-url="https://www.youtube.com/embed/Sx_5bVPhQmg" aria-label="프리미어 프로 롤러스케이트 광고 재생">
+          <span class="featured-image"><img src="images/pre2.png" alt="롤러스케이트 광고 썸네일" loading="lazy"><span class="featured-symbol" aria-hidden="true">▶</span></span>
+          <span class="featured-program">PREMIERE PRO</span><span class="featured-name">롤러스케이트 광고</span>
+        </button>
+        <button class="featured-card" type="button" data-featured-kind="image" data-featured-url="images/photoL1.png" aria-label="포토샵 햄버거 포스터 원본 보기">
+          <span class="featured-image"><img src="images/photo8.png" alt="햄버거 포스터 썸네일" loading="lazy"><span class="featured-symbol featured-symbol-zoom" aria-hidden="true">⌕</span></span>
+          <span class="featured-program">PHOTOSHOP</span><span class="featured-name">햄버거 포스터</span>
+        </button>
+        <button class="featured-card" type="button" data-featured-kind="video" data-featured-url="https://www.youtube.com/embed/2YaHJaQHqqg" aria-label="애프터 이펙트 키보드 마우스 광고 재생">
+          <span class="featured-image"><img src="images/after3.png" alt="키보드 마우스 광고 썸네일" loading="lazy"><span class="featured-symbol" aria-hidden="true">▶</span></span>
+          <span class="featured-program">AFTER EFFECTS</span><span class="featured-name">키보드·마우스 광고</span>
+        </button>
+        <button class="featured-card" type="button" data-featured-kind="image" data-featured-url="images/charL1.jpg" aria-label="일러스트레이터 펭귄 작품 원본 보기">
+          <span class="featured-image"><img src="images/character1.png" alt="펭귄 캐릭터 디자인 썸네일" loading="lazy"><span class="featured-symbol featured-symbol-zoom" aria-hidden="true">⌕</span></span>
+          <span class="featured-program">ILLUSTRATOR</span><span class="featured-name">펭귄 캐릭터</span>
+        </button>
+        <a class="featured-card" href="https://www.figma.com/proto/KSYWWjDBw2ARFZfh7pCACi/T?t=670iOHxqflnDNMRK-0&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1&amp;node-id=1-2" target="_blank" rel="noopener noreferrer" aria-label="피그마 MCN 홈페이지 미리보기 새 창으로 열기">
+          <span class="featured-image"><img src="images/fig1.png" alt="MCN 홈페이지 디자인 썸네일" loading="lazy"><span class="featured-symbol" aria-hidden="true">↗</span></span>
+          <span class="featured-program">FIGMA</span><span class="featured-name">MCN 홈페이지</span>
+        </a>
+      </div>
+      <footer class="featured-footer">
+        <div class="featured-contact">
+          <p>CONTACT</p>
+          <a id="featured-email" href="mailto:contact@example.com">contact@example.com</a>
+        </div>
+        <a id="featured-youtube" class="featured-youtube" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="유튜브 채널 이동" title="유튜브 채널 이동">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3.1 3.1 0 0 0-2.2-2.2C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.3.5A3.1 3.1 0 0 0 .5 6.2 32.2 32.2 0 0 0 0 12a32.2 32.2 0 0 0 .5 5.8A3.1 3.1 0 0 0 2.7 20c1.9.5 9.3.5 9.3.5s7.4 0 9.3-.5a3.1 3.1 0 0 0 2.2-2.2A32.2 32.2 0 0 0 24 12a32.2 32.2 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z"/></svg>
+          <span>YOUTUBE</span>
+        </a>
+      </footer>
+    </div>
+  </section>
+  <div class="featured-modal" id="featured-modal" role="dialog" aria-modal="true" aria-label="대표 작품 미리보기" hidden>
+    <button type="button" class="featured-close" id="featured-close" aria-label="닫기">×</button>
+    <div class="featured-modal-content" id="featured-modal-content"></div>
+  </div>
 </body>
 
 </html>
