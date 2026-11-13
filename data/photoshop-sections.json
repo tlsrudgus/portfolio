@@ -15,7 +15,14 @@
     {
       "id": "comp",
       "title": "",
-      "items": []
+      "items": [
+        {
+          "id": "71fb8cd7-908f-4049-b995-9f1e7a93bfd8",
+          "title": "그림 합성",
+          "thumb": "media/photoshop-1794537501749-e491d3d8-7921-4499-a4a4-47723360885a.png",
+          "image": "media/photoshop-1794537504032-e86b48d1-3e85-4bd6-b6f9-c6234c0645b9.png"
+        }
+      ]
     }
   ]
 }
