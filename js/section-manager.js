@@ -161,7 +161,10 @@
   function validatePicture(file,label){
     if(!file)throw Error(label+'을 선택해 줘.');
     if(!['image/png','image/jpeg','image/webp','image/gif'].includes(file.type))throw Error(label+'은 PNG, JPG, WEBP, GIF만 등록할 수 있어.');
-    if(file.size>8*1024*1024)throw Error(label+'이 8MB보다 커. 용량을 줄여 줘.');
+    // 썸네일은 8MB, 클릭 시 표시하는 원본 이미지는 25MB까지 허용합니다.
+    const maxBytes = label === 'thumbnail' ? 8 * 1024 * 1024 : 25 * 1024 * 1024;
+    const maxMB = label === 'thumbnail' ? 8 : 25;
+    if (file.size > maxBytes) throw Error(label+'이 '+maxMB+'MB보다 커. 용량을 줄여 줘.');
   }
   async function upload(config,file,label){
     validatePicture(file,label);
