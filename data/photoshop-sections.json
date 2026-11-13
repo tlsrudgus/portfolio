@@ -1,1 +1,16 @@
-{"sections": []}
+{
+  "sections": [
+    {
+      "id": "poster",
+      "title": "",
+      "items": [
+        {
+          "id": "a9fd5d3e-24be-4bf1-9663-e0208535eea4",
+          "title": "그림 합성",
+          "thumb": "media/photoshop-1794536906238-f6381111-5f5f-45f0-a748-861f5846db40.png",
+          "image": "media/photoshop-1794536908801-43787aa4-79f2-4bc3-a09b-07ebfe6288fa.png"
+        }
+      ]
+    }
+  ]
+}
