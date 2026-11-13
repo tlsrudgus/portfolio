@@ -1,0 +1,49 @@
+/* 포토샵·일러스트레이터 추가 구역 관리자: 기본 상태에서는 모든 편집 버튼 숨김 */
+#photoshop .sm-add-card, #illustrator .sm-add-card,
+#photoshop .sm-item-actions,#illustrator .sm-item-actions,
+#photoshop .sm-section-actions,#illustrator .sm-section-actions,
+#photoshop .sm-footer,#illustrator .sm-footer {display:none!important;}
+body.sm-admin-mode #photoshop .sm-add-card,body.sm-admin-mode #illustrator .sm-add-card {display:flex!important;}
+body.sm-admin-mode #photoshop .sm-item-actions,body.sm-admin-mode #illustrator .sm-item-actions,
+body.sm-admin-mode #photoshop .sm-section-actions,body.sm-admin-mode #illustrator .sm-section-actions {display:flex!important;}
+body.sm-admin-mode #photoshop .sm-footer,body.sm-admin-mode #illustrator .sm-footer {display:flex!important;}
+#photoshop .sm-add-card,#illustrator .sm-add-card {align-items:center;justify-content:center;min-height:170px;padding:12px!important;}
+#photoshop .sm-add-button,#illustrator .sm-add-button {width:100%;min-height:140px;border:3px dashed #cba94a;border-radius:14px;background:#fff9e6;font-weight:800;font-size:19px;cursor:pointer;white-space:pre-line;color:#4a371b;}
+#photoshop .sm-add-button:hover,#illustrator .sm-add-button:hover {background:#fff1c9;}
+#photoshop .sm-item-actions,#illustrator .sm-item-actions,#photoshop .sm-section-actions,#illustrator .sm-section-actions {gap:8px;justify-content:center;flex-wrap:wrap;padding:8px;}
+#photoshop .sm-item-actions button,#illustrator .sm-item-actions button,
+#photoshop .sm-section-actions button,#illustrator .sm-section-actions button {cursor:pointer;border:0;border-radius:8px;padding:9px 14px;background:#f6c45a;color:#333;font-weight:700;}
+#photoshop .sm-item-actions .sm-danger,#illustrator .sm-item-actions .sm-danger,
+#photoshop .sm-section-actions .sm-danger,#illustrator .sm-section-actions .sm-danger {background:#f7cdca;}
+#photoshop .sm-footer,#illustrator .sm-footer {justify-content:center;padding:40px 12px 80px;}
+#photoshop .sm-new-section-button,#illustrator .sm-new-section-button {padding:18px 32px;border:3px dashed #cba94a;background:#fff8e7;border-radius:14px;cursor:pointer;font-weight:800;font-size:23px;}
+#photoshop .sm-new-item .sm-thumb {display:block;width:100%;height:auto;cursor:pointer;}
+#photoshop .thumbnail .sm-new-item .sm-thumb {cursor:default;}
+#illustrator .sm-new-item .sm-thumb {display:block;max-width:100%;height:auto;cursor:pointer;}
+#photoshop .sm-custom-section .box-group,#illustrator .sm-custom-section .box-group {display:flex;flex-wrap:wrap;justify-content:center;}
+#photoshop .sm-custom-section .box,#illustrator .sm-custom-section .box {width:33.333%;padding:12px 18px;min-width:0;text-align:center;}
+#photoshop .sm-custom-section .sm-thumb,#illustrator .sm-custom-section .sm-thumb {width:100%;aspect-ratio:4 / 3;object-fit:contain;display:block;cursor:pointer;}
+#photoshop .sm-custom-section h2,#illustrator .sm-custom-section h2 {margin-bottom:10px;font-size:20px;}
+#photoshop .sm-custom-section .container,#illustrator .sm-custom-section .container {padding-top:35px;}
+/* 확대할 이미지는 테두리·그림자 중복 없이 기존 포토샵 스타일을 유지 */
+#photoshop .sm-new-item img,#photoshop .sm-custom-section img {box-shadow:none;}
+.sm-exit {position:fixed;right:20px;top:16px;z-index:1020;background:#f7c45c;border:0;border-radius:10px;padding:12px 16px;font-weight:800;cursor:pointer;}
+.sm-exit[hidden],.sm-shade[hidden]{display:none!important;}
+.sm-shade{position:fixed;inset:0;z-index:2000;background:#0009;display:flex;align-items:center;justify-content:center;padding:20px;}
+.sm-panel{position:relative;background:#fff7e4;border-radius:18px;padding:30px;width:min(540px,100%);max-height:90vh;overflow:auto;color:#272727;box-shadow:0 12px 45px #0005;font-family:Pretendard,Arial,sans-serif;}
+.sm-panel h2{margin-bottom:18px;font-size:25px;}
+.sm-close{position:absolute;right:15px;top:8px;border:0;background:none;font-size:34px;cursor:pointer;}
+.sm-form{display:flex;flex-direction:column;gap:13px;}
+.sm-field{display:flex;flex-direction:column;gap:5px;font-size:14px;font-weight:700;}
+.sm-field input{min-width:0;width:100%;padding:12px;border:1px solid #d2c69d;border-radius:8px;background:white;font:inherit;font-weight:400;}
+.sm-checkbox{display:flex;gap:8px;align-items:center;font-size:14px;}
+.sm-github{border:1px solid #d6c595;border-radius:10px;padding:12px;}
+.sm-github summary{font-size:14px;font-weight:700;cursor:pointer;}
+.sm-github[open]{display:flex;flex-direction:column;gap:12px;}
+.sm-github[open] summary{margin-bottom:3px;}
+.sm-hint{font-size:14px;color:#63583c;line-height:1.5;}
+.sm-status{min-height:16px;white-space:pre-wrap;font-size:13px;color:#a83d2c;}
+.sm-main,.sm-danger-button{padding:14px;border:0;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;background:#f5c254;}
+.sm-danger-button{background:#c24130;color:white;}
+.sm-main:disabled,.sm-danger-button:disabled{opacity:.6;cursor:wait;}
+@media(max-width:800px){#photoshop .sm-custom-section .box,#illustrator .sm-custom-section .box{width:50%;}}
