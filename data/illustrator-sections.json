@@ -1,1 +1,16 @@
-{"sections": []}
+{
+  "sections": [
+    {
+      "id": "character",
+      "title": "",
+      "items": [
+        {
+          "id": "386696ed-865e-4eda-b7e4-63a46a008b06",
+          "title": "산타",
+          "thumb": "media/illustrator-1794804606570-92285add-bee6-4fd8-bb11-7c0902ad50ec.png",
+          "image": "media/illustrator-1794804608860-10659ec5-1aff-4dc7-a08b-2ffbabbbf797.jpg"
+        }
+      ]
+    }
+  ]
+}
