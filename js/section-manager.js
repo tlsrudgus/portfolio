@@ -18,7 +18,7 @@
   const originalSections = new Map(CONFIG.categories.map(cat => [cat, root.querySelector('section.' + cat)]));
   const originalCount = new Map(CONFIG.categories.map(cat => [cat, originalSections.get(cat)?.querySelectorAll('.box-group > .box').length || 0]));
   let loggedIn = false;
-  let model = { sections: [] };
+  let model = { sections: [], layouts: {} };
   let currentSection = null;
   let editingItem = null;
   let editingSection = null;
@@ -29,29 +29,80 @@
   const safeUrl = text => {try {const parsed=new URL(text,location.href);return ['https:','http:'].includes(parsed.protocol)?parsed.href:'';}catch{return '';}};
   const escapeSelector = value => CSS.escape(value);
   const savedData = ()=>structuredClone(model);
-  const safeModel = obj => ({sections: Array.isArray(obj?.sections)?obj.sections.filter(x=>x && typeof x.id==='string' && Array.isArray(x.items)):[]});
+  const safeModel = obj => ({
+    sections: Array.isArray(obj?.sections) ? obj.sections.filter(x=>x && typeof x.id==='string' && Array.isArray(x.items)) : [],
+    layouts: obj?.layouts && typeof obj.layouts === 'object' && !Array.isArray(obj.layouts) ? {...obj.layouts} : {}
+  });
+  const DEFAULT_IMAGE_POSITION = {x:50, y:50, size:82};
+  const normalizePosition = value => ({
+    x: Math.max(5, Math.min(95, Number(value?.x) || 50)),
+    y: Math.max(5, Math.min(95, Number(value?.y) || 50)),
+    size: Math.max(20, Math.min(100, Number(value?.size) || 82))
+  });
   function getSection(id) {return model.sections.find(s=>s.id===id);}
   function ensureSection(id) {let s=getSection(id); if(!s){s={id,title:'',items:[]};model.sections.push(s);} return s;}
   function sectionNode(id) {return originalSections.get(id) || root.querySelector('section[data-custom-section="'+escapeSelector(id)+'"]');}
   function button(label, cls, fn) {const b=el('button',cls,label);b.type='button';b.addEventListener('click',fn);return b;}
+  function applyModalPosition(value) {
+    if (!modal) return;
+    const p = normalizePosition(value || DEFAULT_IMAGE_POSITION);
+    modal.classList.add('sm-image-positioned');
+    modal.style.setProperty('--sm-image-x', p.x + '%');
+    modal.style.setProperty('--sm-image-y', p.y + '%');
+    modal.style.setProperty('--sm-image-size', p.size + 'vw');
+  }
+  function clearModalPosition() {
+    if (!modal) return;
+    modal.classList.remove('sm-image-positioned');
+    modal.style.removeProperty('--sm-image-x');
+    modal.style.removeProperty('--sm-image-y');
+    modal.style.removeProperty('--sm-image-size');
+  }
   function createAddedCard(item, sectionId, noPreview) {
     const card=el('div','box sm-new-item');card.dataset.itemId=item.id;
     const title=el('h2','',item.title);card.append(title);
     const pic=el('img','sm-thumb');pic.src=safeUrl(item.thumb);pic.alt=item.title;pic.loading='lazy';
-    // Photoshop 일반 썸네일 영역은 기존 동작을 유지: 이미지 확대 없음
-    if(!noPreview){pic.tabIndex=0;pic.setAttribute('role','button');pic.addEventListener('click',()=>openPreview(item.image,item.title));pic.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPreview(item.image,item.title);}});}
+    // Photoshop 일반 썸네일 구역은 기존처럼 확대 미리보기를 열지 않습니다.
+    if(!noPreview){
+      pic.tabIndex=0;pic.setAttribute('role','button');
+      pic.addEventListener('click',()=>openPreview(item.image,item.title,item.position));
+      pic.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openPreview(item.image,item.title,item.position);}});
+    }
     card.append(pic);
     if(!noPreview && page==='photoshop')card.append(el('p','','클릭하여 원본 소스 보기'));
     const tools=el('div','sm-item-actions');
-    tools.append(button('수정','',()=>openItem(sectionId,item.id)),button('삭제','sm-danger',()=>removeItem(sectionId,item.id)));
+    tools.append(button('수정','',()=>openItem(sectionId,item.id)));
+    if(!noPreview) tools.append(button('위치·크기','',()=>openPosition({kind:'item',sectionId,itemId:item.id,title:item.title,src:item.image})));
+    tools.append(button('삭제','sm-danger',()=>removeItem(sectionId,item.id)));
     card.append(tools);
     return card;
   }
-  function openPreview(image,title){
+  function openPreview(image,title,position){
     if(!modal)return;
     const view=modal.querySelector('img');if(!view)return;
     const uri=safeUrl(image);if(!uri)return;
+    applyModalPosition(position);
     view.src=uri;view.alt=title;modal.style.display='block';
+  }
+  function registerLegacyCards() {
+    for (const [sectionId, section] of originalSections) {
+      if (!section) continue;
+      const cards = [...section.querySelectorAll('.box-group > .box')];
+      cards.forEach((card, index) => {
+        const img = card.querySelector('img[data-src]');
+        if (!img) return; // Photoshop 일반 썸네일은 원본 팝업이 없으므로 위치 조절 대상이 아닙니다.
+        const key = `legacy-${sectionId}-${index}`;
+        if (img.dataset.smPositionBound !== '1') {
+          img.addEventListener('click', () => applyModalPosition(model.layouts?.[key] || DEFAULT_IMAGE_POSITION), true);
+          img.dataset.smPositionBound = '1';
+        }
+        card.querySelectorAll('.sm-legacy-actions').forEach(node => node.remove());
+        const actions = el('div','sm-legacy-actions');
+        const title = card.querySelector('h2')?.textContent?.trim() || img.alt || '기존 이미지';
+        actions.append(button('이미지 위치·크기', '', () => openPosition({kind:'legacy',key,title,src:img.dataset.src})));
+        card.append(actions);
+      });
+    }
   }
   function sectionAddCard(sectionId){
     const add=el('div','box sm-add-card');
@@ -106,13 +157,15 @@
       gallery.append(sectionAddCard(s.id));
       main.insertBefore(section,footer);
     }
-    // 썸네일 hover 스타일은 이미지를 이동시키지 않으므로 기존의 클릭 이벤트에 영향 없음.
+    registerLegacyCards();
   }
+  if (modal) modal.addEventListener('click', clearModalPosition);
+
   // GitHub에 공개된 JSON은 페이지 배포 후 노출. 관리자 등록 성공 직후에는 메모리로 즉시 렌더.
   async function load(){
     try{const response=await fetch(CONFIG.data+'?v='+Date.now(),{cache:'no-store'});
-      if(response.status===404){model={sections:[]};} else {if(!response.ok)throw Error('HTTP '+response.status);model=safeModel(await response.json());}
-    }catch(err){console.warn('포트폴리오 목록을 읽지 못했어:',err);model={sections:[]};}
+      if(response.status===404){model={sections:[],layouts:{}};} else {if(!response.ok)throw Error('HTTP '+response.status);model=safeModel(await response.json());}
+    }catch(err){console.warn('포트폴리오 목록을 읽지 못했어:',err);model={sections:[],layouts:{}};}
     render();
   }
   function githubConfig(form){
@@ -149,7 +202,7 @@
     const key=configKey(config);
     for(let attempt=0;attempt<5;attempt++){
       let last=lastSaves.get(key);
-      if(!last){const record=await api(config,CONFIG.data);last={sha:record?.sha||null,data:record?safeModel(JSON.parse(utf8Decode(record.content))):{sections:[]}};}
+      if(!last){const record=await api(config,CONFIG.data);last={sha:record?.sha||null,data:record?safeModel(JSON.parse(utf8Decode(record.content))):{sections:[],layouts:{}}};}
       const next=structuredClone(last.data);modify(next);
       const b64=utf8Encode(new TextEncoder().encode(JSON.stringify(next,null,2)+'\n'));
       try{
@@ -174,6 +227,53 @@
     await api(config,path,'PUT',{message:'Upload '+page+' '+label,content:encoded,branch:config.branch});
     return path;
   }
+  function openPosition(target){
+    const current = target.kind === 'legacy'
+      ? normalizePosition(model.layouts?.[target.key] || DEFAULT_IMAGE_POSITION)
+      : normalizePosition(getSection(target.sectionId)?.items.find(item=>item.id===target.itemId)?.position || DEFAULT_IMAGE_POSITION);
+    resetPanel('이미지 위치·크기 조절');
+    const form=el('form','sm-form');form.noValidate=true;
+    const stage=el('div','sm-position-stage');
+    const sample=el('img','sm-position-sample');sample.src=safeUrl(target.src);sample.alt=target.title||'미리보기';
+    stage.append(sample);
+    const x=input('range');x.min=5;x.max=95;x.step=1;x.value=current.x;
+    const y=input('range');y.min=5;y.max=95;y.step=1;y.value=current.y;
+    const size=input('range');size.min=20;size.max=100;size.step=1;size.value=current.size;
+    const xField=row('가로 위치',x),yField=row('세로 위치',y),sizeField=row('이미지 크기',size);
+    const xOut=el('output','',current.x+'%'),yOut=el('output','',current.y+'%'),sizeOut=el('output','',current.size+'%');
+    xField.querySelector('span').append(xOut);yField.querySelector('span').append(yOut);sizeField.querySelector('span').append(sizeOut);
+    const note=el('p','sm-hint','방문자가 원본 이미지를 눌렀을 때 나타나는 위치와 크기야. 작품마다 별도로 저장돼.');
+    const reset=button('기본 위치로 복원','sm-secondary',()=>{x.value=50;y.value=50;size.value=82;draw();});
+    const folder=githubSettings(),report=el('p','sm-status');
+    function draw(){
+      const values={x:Number(x.value),y:Number(y.value),size:Number(size.value)};
+      sample.style.left=values.x+'%';sample.style.top=values.y+'%';sample.style.width=values.size+'%';
+      xOut.textContent=values.x+'%';yOut.textContent=values.y+'%';sizeOut.textContent=values.size+'%';
+    }
+    [x,y,size].forEach(input=>input.addEventListener('input',draw));
+    const save=button('위치·크기 저장','sm-main',async()=>{
+      if(working)return;working=true;save.disabled=true;
+      try{
+        const config=githubConfig(form);const value={x:Number(x.value),y:Number(y.value),size:Number(size.value)};
+        report.textContent='이미지 위치 설정을 저장 중...';
+        await mutate(config,data=>{
+          if(target.kind==='legacy'){
+            if(!data.layouts||typeof data.layouts!=='object')data.layouts={};
+            data.layouts[target.key]=value;
+          }else{
+            const section=data.sections.find(item=>item.id===target.sectionId);
+            const item=section?.items.find(item=>item.id===target.itemId);
+            if(!item)throw Error('작품을 찾을 수 없어. 새로고침 후 다시 시도해 줘.');
+            item.position=value;
+          }
+        });
+        closePanel(true);
+      }catch(err){report.textContent=err.message||'저장에 실패했어.';folder.open=true;}
+      finally{working=false;save.disabled=false;}
+    });
+    form.append(note,stage,xField,yField,sizeField,reset,folder,report,save);panel.append(form);draw();
+  }
+
   function openItem(sectionId,itemId){
     currentSection=sectionId;editingItem=itemId;
     const old=itemId?getSection(sectionId)?.items.find(i=>i.id===itemId):null;

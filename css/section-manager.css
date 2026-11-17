@@ -47,3 +47,43 @@ body.sm-admin-mode #photoshop .sm-footer,body.sm-admin-mode #illustrator .sm-foo
 .sm-danger-button{background:#c24130;color:white;}
 .sm-main:disabled,.sm-danger-button:disabled{opacity:.6;cursor:wait;}
 @media(max-width:800px){#photoshop .sm-custom-section .box,#illustrator .sm-custom-section .box{width:50%;}}
+
+/* 신규 작품 썸네일에는 그림자를 적용하되 기존 포토샵 썸네일은 건드리지 않음 */
+#photoshop .sm-new-item .sm-thumb,
+#photoshop .sm-custom-section .sm-thumb,
+#illustrator .sm-new-item .sm-thumb,
+#illustrator .sm-custom-section .sm-thumb { box-shadow:0 5px 12px rgba(0,0,0,.24) !important; }
+
+/* Photoshop 합성: 3열 고정, 초과 작품은 다음 줄로 이동 */
+#photoshop .comp .box-group { display:flex; flex-wrap:wrap !important; justify-content:flex-start; align-items:flex-start; column-gap:0; row-gap:22px; }
+#photoshop .comp .box-group > .box,
+#photoshop .comp .box-group > .box:nth-child(n) {
+  box-sizing:border-box; flex:0 0 33.333333% !important; width:33.333333%; max-width:33.333333%; min-width:0; padding:10px;
+}
+#photoshop .comp .box-group > .box img { max-width:100%; }
+
+/* 관리자 모드에서 기존 원본 이미지에도 위치·크기 조절 도구 표시 */
+#photoshop .sm-legacy-actions, #illustrator .sm-legacy-actions { display:none; }
+body.sm-admin-mode #photoshop .sm-legacy-actions, body.sm-admin-mode #illustrator .sm-legacy-actions { display:flex; justify-content:center; padding:8px; }
+#photoshop .sm-legacy-actions button, #illustrator .sm-legacy-actions button {
+  border:0; border-radius:8px; padding:9px 14px; background:#f6c45a; color:#333; font-weight:700; cursor:pointer;
+}
+#modal.sm-image-positioned { padding:0; text-align:initial; overflow:hidden; }
+#modal.sm-image-positioned > img {
+  position:absolute; left:var(--sm-image-x,50%); top:var(--sm-image-y,50%); transform:translate(-50%,-50%);
+  width:min(var(--sm-image-size,82vw),calc(100vw - 32px)); max-width:none; max-height:calc(100vh - 32px); height:auto; object-fit:contain; margin:0;
+}
+.sm-position-stage {
+  position:relative; width:100%; height:230px; overflow:hidden; border-radius:10px; background-color:#242424;
+  background-image:linear-gradient(90deg,transparent calc(50% - .5px),#656565 calc(50% - .5px),#656565 calc(50% + .5px),transparent calc(50% + .5px)),linear-gradient(0deg,transparent calc(50% - .5px),#656565 calc(50% - .5px),#656565 calc(50% + .5px),transparent calc(50% + .5px));
+}
+.sm-position-sample { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:82%; max-width:none; max-height:94%; height:auto; object-fit:contain; box-shadow:0 4px 14px #0008; }
+.sm-panel .sm-field input[type="range"] { padding:0; accent-color:#edb52d; }
+.sm-field output { float:right; color:#846319; font-weight:700; }
+.sm-secondary { padding:11px 14px; border:1px solid #c7ad64; border-radius:9px; background:#f6edcf; color:#29251c; font-weight:700; cursor:pointer; }
+@media(max-width:900px) {
+  #photoshop .comp .box-group > .box, #photoshop .comp .box-group > .box:nth-child(n) { flex-basis:50% !important; width:50%; max-width:50%; }
+}
+@media(max-width:600px) {
+  #photoshop .comp .box-group > .box, #photoshop .comp .box-group > .box:nth-child(n) { flex-basis:100% !important; width:100%; max-width:100%; }
+}
