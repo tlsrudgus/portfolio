@@ -1,1 +1,28 @@
-{"sections": []}
+{
+  "sections": [
+    {
+      "id": "poster",
+      "title": "",
+      "items": [
+        {
+          "id": "09e1edad-bdb7-49de-916e-fee86d482d89",
+          "title": "노트북 포스터",
+          "thumb": "media/photoshop-1794537011933-7889e0c2-1c7b-439f-9f88-2c6dbdf94190.png",
+          "image": "media/photoshop-1794537013453-cf82ddc2-54a9-484e-adaa-8ad8ab798544.png"
+        }
+      ]
+    },
+    {
+      "id": "comp",
+      "title": "",
+      "items": [
+        {
+          "id": "71fb8cd7-908f-4049-b995-9f1e7a93bfd8",
+          "title": "그림 합성",
+          "thumb": "media/photoshop-1794537501749-e491d3d8-7921-4499-a4a4-47723360885a.png",
+          "image": "media/photoshop-1794537504032-e86b48d1-3e85-4bd6-b6f9-c6234c0645b9.png"
+        }
+      ]
+    }
+  ]
+}
