@@ -11,6 +11,19 @@
           "image": "media/illustrator-1794804608860-10659ec5-1aff-4dc7-a08b-2ffbabbbf797.jpg"
         }
       ]
+    },
+    {
+      "id": "custom-85bf5149-ed40-42c7-8630-bbdd5ea74d41",
+      "title": "디자인",
+      "items": [
+        {
+          "id": "2921d339-4294-4e30-bdb1-cf4a32c9bd1c",
+          "title": "그래픽 카드 박스",
+          "thumb": "media/illustrator-1795142532527-bac7f1c3-771b-4375-938f-e141287fd4a6.png",
+          "image": "media/illustrator-1795142532527-bac7f1c3-771b-4375-938f-e141287fd4a6.png"
+        }
+      ]
     }
-  ]
+  ],
+  "layouts": {}
 }
